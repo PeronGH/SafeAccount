@@ -24,12 +24,11 @@ export function getCodeOf(user_id: string) {
     if (!existsUUID(user_id)) return '';
 
     const newCode = genCode();
-    const uuid = queryUUID('ab');
 
     const [code] = db.query<[string]>(
         `INSERT INTO invitation (user_id, code) VALUES (?, ?)
             ON CONFLICT(user_id) DO UPDATE SET code = code RETURNING code`,
-        [uuid, newCode]
+        [user_id, newCode]
     )[0];
 
     return code;
@@ -44,19 +43,37 @@ export function verifyCode(code: string): boolean {
 export function setInviter(invitee_id: string, code: string): boolean {
     if (!getCodeOf(invitee_id) || !verifyCode(code)) return false;
 
-    db.query(``);
+    db.query(`UPDATE invitation SET invited_by = ? WHERE user_id = ?`, [
+        code,
+        invitee_id,
+    ]);
 
     return true;
+}
+
+export async function registerUser(
+    username: string,
+    password: string,
+    code: string
+): Promise<string> {
+    if (!verifyCode(code)) return Promise.resolve('');
+    try {
+        const uuid = await createUser(username, password);
+        setInviter(uuid, code);
+        return uuid;
+    } catch {
+        return '';
+    }
 }
 
 Deno.test('sql init', async () => {
     initDB();
     await createUser('ab', '123');
-    await createUser('cd', '456');
     db.query(`INSERT INTO invitation (user_id, code) VALUES (?, ?)`, [
         queryUUID('ab'),
         genCode(),
     ]);
+    await registerUser('cd', '456', getCodeOf(queryUUID('ab')));
 });
 
 Deno.test('clear sql', clearDB);
@@ -64,6 +81,10 @@ Deno.test('clear sql', clearDB);
 Deno.test('list all', () => {
     console.table(listUsers());
     console.table(db.queryEntries(`SELECT * FROM invitation`));
+});
+
+Deno.test('set inviter', () => {
+    console.log(setInviter(queryUUID('cd'), getCodeOf(queryUUID('ab'))));
 });
 
 Deno.test('get code', () => {

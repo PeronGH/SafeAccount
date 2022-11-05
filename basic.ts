@@ -1,6 +1,14 @@
 import { db, sha256, User } from './deps.ts';
 
-export async function createUser(name: string, password: string) {
+/**
+ * @param name username
+ * @param password password
+ * @returns uuid
+ */
+export async function createUser(
+    name: string,
+    password: string
+): Promise<string> {
     const uuid = crypto.randomUUID();
     try {
         const hash = await sha256(uuid + password);
@@ -10,9 +18,9 @@ export async function createUser(name: string, password: string) {
             uuid,
             hash,
         ]);
-        return true;
+        return uuid;
     } catch {
-        return false;
+        return '';
     }
 }
 
