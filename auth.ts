@@ -10,7 +10,7 @@ export function verifyToken(token: string): boolean {
 }
 
 export function getNewToken(user_id: string, validBefore?: number) {
-    if (!existsUUID(user_id)) throw new Error('the user does not exist');
+    if (!existsUUID(user_id)) return '';
 
     const token = crypto.randomUUID();
 
@@ -23,7 +23,7 @@ export function getNewToken(user_id: string, validBefore?: number) {
 }
 
 export function getTokensOf(user_id: string) {
-    if (!existsUUID(user_id)) throw new Error('the user does not exist');
+    if (!existsUUID(user_id)) return '';
 
     return db.queryEntries<AuthEntry>(
         `SELECT user_id, token, valid_before, is_revoke FROM auth_entries WHERE user_id = ?`,

@@ -12,7 +12,7 @@ export const initSQL = [
         user_id TEXT NOT NULL,
         token TEXT PRIMARY KEY CHECK(LENGTH(token) = 36),
         valid_before INTEGER,
-        is_revoke INTEGER NOT NULL CHECK(is_revoke IN (0, 1)),
+        is_revoke INTEGER NOT NULL CHECK(is_revoke IN (0, 1)) DEFAULT 0,
         CONSTRAINT ref_uuid FOREIGN KEY (user_id) REFERENCES users (uuid)
     ) STRICT`,
 ];
