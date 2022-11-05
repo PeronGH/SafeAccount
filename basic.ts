@@ -4,6 +4,8 @@ import { db, sha256, User } from './deps.ts';
  * @param name username
  * @param password password
  * @returns uuid
+ *
+ * This function does not verify code, you should use registerUser from invitation.ts if you want to verify code
  */
 export async function createUser(
     name: string,

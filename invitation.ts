@@ -34,13 +34,13 @@ export function getCodeOf(user_id: string) {
     return code;
 }
 
-export function verifyCode(code: string): boolean {
+function verifyCode(code: string): boolean {
     return !!db.query(`SELECT COUNT(*) FROM invitation WHERE code = ?`, [
         code,
     ])[0][0];
 }
 
-export function setInviter(invitee_id: string, code: string): boolean {
+function setInviter(invitee_id: string, code: string): boolean {
     if (!getCodeOf(invitee_id) || !verifyCode(code)) return false;
 
     db.query(`UPDATE invitation SET invited_by = ? WHERE user_id = ?`, [
