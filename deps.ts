@@ -1,6 +1,6 @@
 import { DB } from 'https://deno.land/x/sqlite@v3.5.0/mod.ts';
 
-export const db = new DB('db/user.db');
+export const db = new DB(import.meta.resolve('./db/user.db').slice(7));
 
 export const initSQL = [
     `CREATE TABLE IF NOT EXISTS users (
