@@ -1,12 +1,14 @@
 import { existsUUID } from './basic.ts';
 import { AuthEntry, db } from './deps.ts';
 
-export function verifyToken(token: string): boolean {
-    return !!db.query(
-        `SELECT COUNT(*) FROM auth_entries WHERE 
+export function verifyToken(token: string): string {
+    const result = db.query<[string]>(
+        `SELECT user_id FROM auth_entries WHERE 
         token = ? AND is_revoke = 0 AND (valid_before IS NULL OR valid_before >= ?)`,
         [token, Date.now()]
-    )[0][0];
+    )[0];
+
+    return result ? result[0] : '';
 }
 
 export function getNewToken(user_id: string, validBefore?: number) {
